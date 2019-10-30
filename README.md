@@ -12,6 +12,6 @@ Students are expected to:
 Student Info
 =======================
 
-* Name: MyName
+* Name: Delattre Benoit
 * ID: *YourIdHere*
 
