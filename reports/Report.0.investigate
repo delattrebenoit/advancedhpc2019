@@ -1,0 +1,42 @@
+tclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Labwork 0}
+\author{delattrebenoit }
+\date{October 2019}
+
+
+\begin{document}
+
+\maketitle
+
+\section{labwork 0}
+You need:
+\newline
+Compiler: nvcc (bundled with CUDA SDK) and gcc 4.8+ (for C++11 standard support).
+\newline
+libjpeg to encode/decode JPEG files.
+\newline
+built as follows:
+\newline
+mkdir build
+\newline
+cd build
+\newline
+cmake ..
+\newline
+make -j
+\newline
+To test, you will also need a NVIDIA GPU with proper driver installed.
+\newline
+Check nvidia-smi
+\newline
+To run  ./labwork
+\newline
+result:
+Usage: labwork <lwNum> <inputImage>
+   lwNum        labwork number
+   inputImage   the input file name, in JPEG format
+
+\end{document}
+
