@@ -1,0 +1,21 @@
+\title{Labwork 1}
+\author{delattreben }
+\date{October 2019}
+
+
+
+\begin{document}
+
+
+
+\section{Introduction}
+add:
+#pragma omp parralel for
+
+Starting labwork 1
+labwork 1 CPU ellapsed 3010.2ms
+labwork 1 OpenMP ellapsed 2938.9ms
+labwork 1 ellapsed 2938.9ms
+
+\end{document}
+
