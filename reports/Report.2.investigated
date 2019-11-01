@@ -1,0 +1,95 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{labwork 2}
+\author{delattreben }
+\date{November 2019}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+Tesla K80
+\newline
+Clock Rate: 823500
+\newline
+Total global memory: 3407020032Number of multiprocessors: 13
+\newline
+Number of cores:     2496
+\newline
+Warp size: 32
+\newline
+labwork 2 ellapsed 12.5ms
+
+\end{document}
