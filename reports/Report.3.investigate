@@ -22,7 +22,7 @@ Copy CUDA Memory from GPU to CPU
 \newline
 Cleaning
 \newline
-    when you change size block the programme is much slower
+    when you change size block the programme is much slower for 64 blocks we have 10.1ms and for 128 we have 15.1ms
 
 \end{document}
 

@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
         case 3:
             labwork.labwork3_GPU();
             labwork.saveOutputImage("labwork3-gpu-out.jpg");
+   	    printf("labwork 3 GPU ellapsed %.1fms\n", lwNum, timer.getElapsedTimeInMilliSec());
             break;
         case 4:
             labwork.labwork4_GPU();
@@ -199,7 +200,7 @@ void Labwork::labwork3_GPU() {
 	cudaMemcpy(devInput, inputImage->buffer,pixelCount * sizeof(uchar3),cudaMemcpyHostToDevice);
 
     // Processing
-	int blockSize = 128;
+	int blockSize = 64;
 	int numBlock = pixelCount / blockSize;
         printf("numblock %d\n", numBlock);
 	grayscale<<<numBlock, blockSize>>>(devInput, devOutput);
