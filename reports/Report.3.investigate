@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{labwork 3}
+\author{delattreben }
+\date{November 2019}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Calculate number of pixels
+\newline
+Allocate CUDA memory
+\newline
+Copy CUDA Memory from CPU to GPU
+\newline
+Processing
+\newline
+Copy CUDA Memory from GPU to CPU
+\newline
+Cleaning
+\newline
+    when you change size block the programme is much slower
+
+\end{document}
+
