@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{labwork 4}
+\author{delattreben }
+\date{November 2019}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+for improve we change the grayscale for have it in 2d
+\newline
+we scale the gridsie with the number of pixel
+\newline
+\newline
+for 64 blocksize each
+\newline
+labwork 4 GPU ellapsed 139.8ms
+\newline
+labwork 3 GPU ellapsed 168.5ms
+\newline
+\newline
+when i increas the size of the block so decrease the number of block the time is reduced
+\newline
+for 64*64: labwork 4 GPU ellapsed 126.8ms
+\newline
+for 128*128: labwork 4 GPU ellapsed 98.3ms
+\newline
+\newline
+What is the best configuration for thread blocks to implement
+grayscaling?
+\newline
+32 × 32
+\newline
+\newline
+Which of the following block configs would result in the most
+number of threads in the SM?
+\newline
+\end{document}
