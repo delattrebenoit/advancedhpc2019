@@ -253,11 +253,11 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
                         }
 			  if (width-tidx<3)
                         {
-                                right=right-width+tidx;
+                                right=4+width-tidx;
                         }
 			  if (height-tidy<3)
                         {
-                                bottom=bottom-height+tidy;
+                                bottom=4+height-tidy;
                         }
 
 			for (up= up ; up < bottom ; up++)
@@ -269,7 +269,7 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
 
 			}
 			int coeff=0;
-			 for (int j =0; j < 7 ; j++)
+			for (int j =0; j < 7 ; j++)
                         {
                                  for (int i=0 ; i < 7 ; i++)
                                 {
