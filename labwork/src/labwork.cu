@@ -260,11 +260,11 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
                                 bottom=4+height-tidy;
                         }
 
-			for (up= up ; up < bottom ; up++)
+			for (int haut= up ; haut < bottom ; haut++)
 			{
-				 for (left=left ; left < right ; left++)
+				 for (int gauche=left ; gauche < right ; gauche++)
 	                        {
-					somme +=(input[(tidy-3+up)*width + (tidx-3+left)].x)*convolution[up][left];
+					somme +=(input[(tidy-3+haut)*width + (tidx-3+gauche)].x)*convolution[haut][gauche];
                 	        }
 
 			}
