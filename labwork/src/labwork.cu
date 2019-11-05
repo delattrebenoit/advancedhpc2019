@@ -243,11 +243,11 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
 			int up=0;
 			int bottom=7;
 			int somme=0;
-			if (tidx-3<0)
+			if (tidx<3)
 			{
 				left=3-tidx;
 			}
-			 if (tidy-3<0)
+			 if (tidy<3)
                         {
                                 up=3-tidy;
                         }
@@ -264,7 +264,7 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
 			{
 				 for (left=left ; left < right ; left++)
 	                        {
-					somme=somme+(output[(tidy+up-3)*width + (tidx-3+left)].x)*convolution[up][left];
+					somme +=(input[(tidy-3+up)*width + (tidx-3+left)].x)*convolution[up][left];
                 	        }
 
 			}
@@ -273,7 +273,7 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
                         {
                                  for (int i=0 ; i < 7 ; i++)
                                 {
-                                        coeff=coeff+convolution[j][i];
+                                        coeff +=convolution[j][i];
                                 }
 
                         }
@@ -358,7 +358,6 @@ void Labwork::labwork5_GPU() {
         }
         dim3 gridSize = dim3(width, height);
         grayscale2<<<gridSize, blockSize>>>(devInput, devGray , inputImage->width, inputImage->height);
-
         blur<<<gridSize, blockSize>>>(devGray, devOutput , inputImage->width, inputImage->height);
     // Copy CUDA Memory from GPU to CPU
 
@@ -368,7 +367,7 @@ void Labwork::labwork5_GPU() {
     // Cleaning
         cudaFree(devInput);
         cudaFree(devOutput);
-
+	cudaFree(devGray);
 }
 
 void Labwork::labwork6_GPU() {
