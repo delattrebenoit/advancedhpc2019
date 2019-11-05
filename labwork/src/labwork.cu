@@ -57,8 +57,8 @@ int main(int argc, char **argv) {
  	printf("labwork 4 GPU ellapsed %.1fms\n", lwNum, timer.getElapsedTimeInMilliSec());
             break;
         case 5:
-            labwork.labwork5_CPU();
-            labwork.saveOutputImage("labwork5-cpu-out.jpg");
+	//    labwork.labwork5_CPU();
+        //    labwork.saveOutputImage("labwork5-cpu-out.jpg");
             labwork.labwork5_GPU();
             labwork.saveOutputImage("labwork5-gpu-out.jpg");
             break;
@@ -183,13 +183,13 @@ __global__ void grayscale2(uchar3 *input, uchar3 *output, int width, int height)
 	int c = blockIdx.x*blockDim.x + threadIdx.x;
 	int r = blockIdx.y*blockDim.y + threadIdx.y;
 	int w=  width ;
-	int tidx = r*w + c;
+	int tid = r*w + c;
 	if (c<width)
 	{
 		if(r < height)
 		{
-			output[tidx].x = (input[tidx].x + input[tidx].y + input[tidx].z) / 3;
-			output[tidx].z = output[tidx].y = output[tidx].x;
+			output[tid].x = (input[tid].x + input[tid].y + input[tid].z) / 3;
+			output[tid].z = output[tid].y = output[tid].x;
 		}
 	}
 }
@@ -228,6 +228,61 @@ void Labwork::labwork3_GPU() {
 	cudaFree(devInput);
 	cudaFree(devOutput);
 }
+__global__ void grayscale4(uchar3 *input, uchar3 *output, int width, int height)
+{
+	int convolution [7][7]={{0,0,1,2,1,0,0},{0,3,13,22,13,3,0},{1,13,59,97,59,13,1},{2,22,97,159,97,22,2},{1,13,59,97,59,13,1},{0,3,13,22,13,3,0},{0,0,1,2,1,0,0}};
+        int tidx = blockIdx.x*blockDim.x + threadIdx.x;
+        int tidy = blockIdx.y*blockDim.y + threadIdx.y;
+	if (tidx<width)
+        {
+                if(tidy < height)
+                {
+			int right=0;
+			int left=0;
+			int hight=7;
+			int down=7;
+			int somme=0;
+			if (tidx-3<0)
+			{
+				left=3-tidx;
+			}
+			 if (tidy-3<0)
+                        {
+                                hight=3-tidy;
+                        }
+			  if (width-tidx<3)
+                        {
+                                right=hight-width+tidx;
+                        }
+			  if (height-tidy<3)
+                        {
+                                down=down-height+tidy;
+                        }
+
+			for (hight= hight ; hight < down ; hight++)
+			{
+				 for (right=right ; right < left ; right++)
+	                        {
+					somme=somme+(output[(tidy+hight-3)*width + (tidx-3+right)].x)*convolution[hight][right];
+                	        }
+
+			}
+			int coeff=0;
+			 for (int j =0; j < 7 ; j++)
+                        {
+                                 for (int i=0 ; i < 7 ; i++)
+                                {
+                                        coeff=coeff+convolution[j][i];
+                                }
+
+                        }
+			output[tidx].x= somme/coeff;
+			 output[tidx].z = output[tidx].y = output[tidx].x;
+
+
+                }
+        }
+}
 
 void Labwork::labwork4_GPU() {
     // Calculate number of pixels
@@ -258,6 +313,7 @@ void Labwork::labwork4_GPU() {
 	}
 	dim3 gridSize = dim3(width, height);
 	grayscale2<<<gridSize, blockSize>>>(devInput, devOutput , inputImage->width, inputImage->height);
+
     // Copy CUDA Memory from GPU to CPU
 
         cudaMemcpy(outputImage, devOutput,pixelCount * sizeof(uchar3),cudaMemcpyDeviceToHost);
@@ -271,6 +327,45 @@ void Labwork::labwork5_CPU() {
 }
 
 void Labwork::labwork5_GPU() {
+  // Calculate number of pixels
+        int pixelCount = inputImage->width * inputImage->height;
+        outputImage = static_cast<char *>(malloc(pixelCount * 3));
+
+    // Allocate CUDA memory
+        uchar3 *devInput;
+        uchar3 *devOutput;
+        cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
+        cudaMalloc(&devOutput,pixelCount * sizeof(uchar3));
+
+    // Copy CUDA Memory from CPU to GPU
+        cudaMemcpy(devInput, inputImage->buffer,pixelCount * sizeof(uchar3),cudaMemcpyHostToDevice);
+
+    // Processing
+        dim3 blockSize = dim3(32, 32);
+        int width =inputImage->width / blockSize.x;
+        int height=inputImage->height / blockSize.y;
+
+        if ((inputImage->width % blockSize.x)>0)
+        {
+                width++;
+        }
+        if ((inputImage->height % blockSize.y)>0)
+        {
+                height++;
+        }
+        dim3 gridSize = dim3(width, height);
+        grayscale2<<<gridSize, blockSize>>>(devInput, devOutput , inputImage->width, inputImage->height);
+
+        grayscale4<<<gridSize, blockSize>>>(devInput, devOutput , inputImage->width, inputImage->height);
+    // Copy CUDA Memory from GPU to CPU
+	printf("fdp");
+
+        cudaMemcpy(outputImage, devOutput,pixelCount * sizeof(uchar3),cudaMemcpyDeviceToHost);
+
+    // Cleaning
+        cudaFree(devInput);
+        cudaFree(devOutput);
+
 }
 
 void Labwork::labwork6_GPU() {
