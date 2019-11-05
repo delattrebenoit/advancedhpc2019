@@ -238,9 +238,9 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
         {
                 if(tidy < height)
                 {
-			int right=0;
 			int left=0;
-			int up=7;
+			int right=7;
+			int up=0;
 			int bottom=7;
 			int somme=0;
 			if (tidx-3<0)
@@ -262,9 +262,9 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
 
 			for (up= up ; up < bottom ; up++)
 			{
-				 for (right=right ; right < left ; right++)
+				 for (left=left ; left < right ; left++)
 	                        {
-					somme=somme+(output[(tidy+up-3)*width + (tidx-3+right)].x)*convolution[up][right];
+					somme=somme+(output[(tidy+up-3)*width + (tidx-3+left)].x)*convolution[up][left];
                 	        }
 
 			}
@@ -278,7 +278,7 @@ __global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
 
                         }
 			output[tid].x= somme/coeff;
-			 output[tid].z = output[tid].y = output[tid].x;
+			output[tid].z = output[tid].y = output[tid].x;
 
 
                 }
