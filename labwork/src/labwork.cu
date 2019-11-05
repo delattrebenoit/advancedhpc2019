@@ -228,19 +228,20 @@ void Labwork::labwork3_GPU() {
 	cudaFree(devInput);
 	cudaFree(devOutput);
 }
-__global__ void grayscale4(uchar3 *input, uchar3 *output, int width, int height)
+__global__ void blur(uchar3 *input, uchar3 *output, int width, int height)
 {
 	int convolution [7][7]={{0,0,1,2,1,0,0},{0,3,13,22,13,3,0},{1,13,59,97,59,13,1},{2,22,97,159,97,22,2},{1,13,59,97,59,13,1},{0,3,13,22,13,3,0},{0,0,1,2,1,0,0}};
         int tidx = blockIdx.x*blockDim.x + threadIdx.x;
         int tidy = blockIdx.y*blockDim.y + threadIdx.y;
+	int tid = tidy*width+tidx;
 	if (tidx<width)
         {
                 if(tidy < height)
                 {
 			int right=0;
 			int left=0;
-			int hight=7;
-			int down=7;
+			int up=7;
+			int bottom=7;
 			int somme=0;
 			if (tidx-3<0)
 			{
@@ -248,22 +249,22 @@ __global__ void grayscale4(uchar3 *input, uchar3 *output, int width, int height)
 			}
 			 if (tidy-3<0)
                         {
-                                hight=3-tidy;
+                                up=3-tidy;
                         }
 			  if (width-tidx<3)
                         {
-                                right=hight-width+tidx;
+                                right=right-width+tidx;
                         }
 			  if (height-tidy<3)
                         {
-                                down=down-height+tidy;
+                                bottom=bottom-height+tidy;
                         }
 
-			for (hight= hight ; hight < down ; hight++)
+			for (up= up ; up < bottom ; up++)
 			{
 				 for (right=right ; right < left ; right++)
 	                        {
-					somme=somme+(output[(tidy+hight-3)*width + (tidx-3+right)].x)*convolution[hight][right];
+					somme=somme+(output[(tidy+up-3)*width + (tidx-3+right)].x)*convolution[up][right];
                 	        }
 
 			}
@@ -276,8 +277,8 @@ __global__ void grayscale4(uchar3 *input, uchar3 *output, int width, int height)
                                 }
 
                         }
-			output[tidx].x= somme/coeff;
-			 output[tidx].z = output[tidx].y = output[tidx].x;
+			output[tid].x= somme/coeff;
+			 output[tid].z = output[tid].y = output[tid].x;
 
 
                 }
@@ -336,6 +337,8 @@ void Labwork::labwork5_GPU() {
         uchar3 *devOutput;
         cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
         cudaMalloc(&devOutput,pixelCount * sizeof(uchar3));
+	uchar3 *devGray;
+        cudaMalloc(&devGray, pixelCount * sizeof(uchar3));
 
     // Copy CUDA Memory from CPU to GPU
         cudaMemcpy(devInput, inputImage->buffer,pixelCount * sizeof(uchar3),cudaMemcpyHostToDevice);
@@ -354,11 +357,11 @@ void Labwork::labwork5_GPU() {
                 height++;
         }
         dim3 gridSize = dim3(width, height);
-        grayscale2<<<gridSize, blockSize>>>(devInput, devOutput , inputImage->width, inputImage->height);
+        grayscale2<<<gridSize, blockSize>>>(devInput, devGray , inputImage->width, inputImage->height);
 
-        grayscale4<<<gridSize, blockSize>>>(devInput, devOutput , inputImage->width, inputImage->height);
+        blur<<<gridSize, blockSize>>>(devGray, devOutput , inputImage->width, inputImage->height);
     // Copy CUDA Memory from GPU to CPU
-	printf("fdp");
+
 
         cudaMemcpy(outputImage, devOutput,pixelCount * sizeof(uchar3),cudaMemcpyDeviceToHost);
 
