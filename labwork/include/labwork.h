@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <include/jpegloader.h>
@@ -8,13 +9,19 @@ class Labwork {
 private:
     JpegLoader jpegLoader;
     JpegInfo *inputImage;
+    JpegInfo *inputImage2;
     char *outputImage;
 
 public:
-    void loadInputImage(std::string inputFileName);
-    void saveOutputImage(std::string outputFileName);
 
-    void labwork1_CPU();
+
+    int getWidth();
+    int getHeight();
+    void loadInputImage(std::string inputFileName);
+    void loadInputImage2(std::string inputFileName);
+   void saveOutputImage(std::string outputFileName);
+
+void labwork1_CPU();
     void labwork1_OpenMP();
 
     void labwork2_GPU();
@@ -25,6 +32,7 @@ public:
 
     void labwork5_CPU();
     void labwork5_GPU();
+ void labwork52_GPU();
 
     void labwork6_GPU();
 
