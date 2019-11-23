@@ -737,15 +737,15 @@ __global__ void RGBtoHSV(uchar3 *input, double *outh, double *outs, double *outv
 			{
 				if(max = color[0])
 				{
-					outh[tid] = 60*(((int)((input[tid].y - input[tid].z)/delta)) % 6) ;
+					outh[tid] = 60*(((int)((green - blue)/delta)) % 6) ;
 				}
 				 if(max =color[1])
                                 {
-					outh[tid] = 60*((input[tid].z - input[tid].x)/delta+2) ;
+					outh[tid] = 60*((blue - red)/delta+2) ;
                                 }
 				 if(max =color[2])
                                 {
-					outh[tid] = 60*((input[tid].x - input[tid].y)/delta+4) ;
+					outh[tid] = 60*((red - green)/delta+4) ;
                                 }
 
 			}
@@ -813,7 +813,13 @@ void Labwork::labwork8_GPU() {
         cudaMalloc(&devOutput,pixelCount * sizeof(uchar3));
         uchar3 *devGray;
         cudaMalloc(&devGray, pixelCount * sizeof(uchar3));
+	double *outh;
+        double *outs;
+        double *outv;
 
+cudaMalloc(&outh, pixelCount * sizeof(double));
+        cudaMalloc(&outs, pixelCount * sizeof(double));
+        cudaMalloc(&outv, pixelCount * sizeof(double));
     // Copy CUDA Memory from CPU to GPU
         cudaMemcpy(devInput, inputImage->buffer,pixelCount * sizeof(uchar3),cudaMemcpyHostToDevice);
 
@@ -831,9 +837,6 @@ void Labwork::labwork8_GPU() {
                 height++;
         }
         dim3 gridSize = dim3(width, height);
-	double *outh;
-	double *outs;
-	double *outv;
 	RGBtoHSV<<<gridSize, blockSize>>>(devInput,outh, outs, outv,inputImage->width, inputImage->height);
 	HSVtoRGB<<<gridSize, blockSize>>>(outh, outs, outv, devOutput ,inputImage->width, inputImage->height);
     // Copy CUDA Memory from GPU to CPU
