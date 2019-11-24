@@ -1,0 +1,32 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{lab6}
+\author{delattreben }
+\date{November 2019}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+for the binariztion
+\newline
+Define a threshold τ ∈ [0..255]
+\newline
+if its  Φ(x, y) < τ Φ(x, y) =0
+\newline
+Φ(x, y) ≥ τ Φ(x, y)=255
+\newline
+\newline
+for the brightness controle 
+\newline
+take a value a∈ [0..255] and add to the Φ(x, y) for increase or degrease brightness
+\newline
+\newline
+blending
+\newline
+Take a another picture .for that wechange the .h
+and blend the pictures with a cofficient  ∈ [0..1] for see one or an aother pictures most or not
+\end{document}
+
