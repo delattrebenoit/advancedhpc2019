@@ -817,7 +817,7 @@ void Labwork::labwork8_GPU() {
         double *outs;
         double *outv;
 
-cudaMalloc(&outh, pixelCount * sizeof(double));
+	cudaMalloc(&outh, pixelCount * sizeof(double));
         cudaMalloc(&outs, pixelCount * sizeof(double));
         cudaMalloc(&outv, pixelCount * sizeof(double));
     // Copy CUDA Memory from CPU to GPU
@@ -850,12 +850,223 @@ cudaMalloc(&outh, pixelCount * sizeof(double));
         cudaFree(devGray);
 
 }
-
+__global__ void histogramme(uchar3 *input, uchar3 *output, int width, int height, int bright)
+{
+        int c = blockIdx.x*blockDim.x + threadIdx.x;
+        int r = blockIdx.y*blockDim.y + threadIdx.y;
+        int w=  width ;
+        int tid = r*w + c;
+        if (c<width)
+        {
+                if(r < height)
+                {
+			}	}
+}
 void Labwork::labwork9_GPU() {
+	// Calculate number of pixels
+        int pixelCount = inputImage->width * inputImage->height;
 
+	outputImage = static_cast<char *>(malloc(pixelCount * 3));
+
+    // Allocate CUDA memory
+        uchar3 *devInput;
+        uchar3 *devOutput;
+        cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
+        cudaMalloc(&devOutput,pixelCount * sizeof(uchar3));
+        uchar3 *devGray;
+        cudaMalloc(&devGray, pixelCount * sizeof(uchar3));
+        double *outh;
+        double *outs;
+        double *outv;
+
+	cudaMalloc(&outh, pixelCount * sizeof(double));
+        cudaMalloc(&outs, pixelCount * sizeof(double));
+        cudaMalloc(&outv, pixelCount * sizeof(double));
+    // Copy CUDA Memory from CPU to GPU
+        cudaMemcpy(devInput, inputImage->buffer,pixelCount * sizeof(uchar3),cudaMemcpyHostToDevice);
+
+    // Processing
+        dim3 blockSize = dim3(32, 32);
+        int width =inputImage->width / blockSize.x;
+        int height=inputImage->height / blockSize.y;
+
+        if ((inputImage->width % blockSize.x)>0)
+        {
+                width++;
+        }
+        if ((inputImage->height % blockSize.y)>0)
+        {
+                height++;
+        }
+        dim3 gridSize = dim3(width, height);
+	grayscale2<<<gridSize, blockSize>>>(devInput, devGray , inputImage->width, inputImage->height);
+        RGBtoHSV<<<gridSize, blockSize>>>(devInput,outh, outs, outv,inputImage->width, inputImage->height);
+        HSVtoRGB<<<gridSize, blockSize>>>(outh, outs, outv, devOutput ,inputImage->width, inputImage->height);
+    // Copy CUDA Memory from GPU to CPU
+
+
+        cudaMemcpy(outputImage, devOutput,pixelCount * sizeof(uchar3),cudaMemcpyDeviceToHost);
+
+    // Cleaning
+        cudaFree(devInput);
+        cudaFree(devOutput);
+        cudaFree(devGray);
+
+}
+__global__ void kumahara(int w , double *outh, double *outs, double *outv,uchar3 *input, uchar3 *output, int width,int height)
+{
+        int co = blockIdx.x*blockDim.x + threadIdx.x;
+        int r = blockIdx.y*blockDim.y + threadIdx.y;
+        int tid = r*width + co;
+	double a = 0.0 ;
+	double b = 0.0 ;
+	double c = 0.0 ;
+	double d = 0.0 ;
+	int red =0;
+	int green=0;
+	int blue =0;
+	double wSquare=(w+1)*(w+1);
+	if ((co > w) and (co < width-(w+1)) and (r > w) and (r< height-(w+1)))
+	{
+   		for(int i=0; i<w+1; ++i)
+		{
+			for (int j =0; j<w+1;j++)
+			{
+				a += outv[(tid-i)-(j*width) ] ;
+				b += outv[(tid+i)-(j*width) ] ;
+				c += outv[(tid-i)+(j*width) ] ;
+				d += outv[(tid+i)+(j*width) ] ;
+	  		}
+		}
+		a = a/wSquare;
+	        b = b/wSquare;
+        	c = c/wSquare;
+        	d = d/wSquare;
+
+		for(int i=0; i<w+1 ; ++i)
+		{
+			for (int j=0;j<w+1 ; j++)
+			{
+        			a += outv[(tid-i)-(j*width) ] - a;
+        			b += outv[(tid+i)-(j*width) ] - b;
+        			c += outv[(tid-i)+(j*width) ] - c;
+        			d += outv[(tid+i)+(j*width) ] - d;
+	  		}
+		}
+		double comparaison[4]={a,b,c,d};
+		double min = comparaison[0];
+		if(min<0)
+                {
+	                min*= -1;
+                }
+
+		for (int i=0;i<4;i++)
+		{
+			if(comparaison[i]<0)
+			{
+				comparaison[i]*= -1;
+			}
+			if (comparaison[i]<min)
+			{
+				min = comparaison[i];
+			}
+		}
+		int factI =1;
+		int factJ=1;
+		if(min = a)
+		{
+			factI = -1;
+                	factJ= -1;
+		}
+		if(min = d)
+                {
+                        factJ= -1;
+                }
+		if(min = c)
+                {
+                        factI = -1;
+                }
+		for(int i=0; i<w+1 ; ++i)
+                {
+                        for (int j=0;j<w+1 ; j++)
+                        {
+				red +=input[(tid+ factI*i)+(factJ*j*width) ].x ;
+		        	green += input[(tid+ factI*i)+(factJ*j*width) ].y ;
+        			blue += input[(tid+ factI*i)+(factJ*j*width) ].z ;
+			}
+		}
+		red = red/wSquare;
+                blue = blue/wSquare ;
+                green = green/wSquare;
+		for(int i=0; i<w+1 ; ++i)
+                {
+                        for (int j=0;j<w+1 ; j++)
+                        {
+                                output[(tid+ factI*i)+(factJ*j*width) ].x=red ;
+                                output[(tid+ factI*i)+(factJ*j*width) ].y=green ;
+                                output[(tid+ factI*i)+(factJ*j*width) ].z=blue ;
+                        }
+                }
+
+
+	}
+	else
+	{
+		output[tid].x=input[tid].x;
+		output[tid].y=input[tid].y;
+		output[tid].z=input[tid].z;
+	}
 }
 
 void Labwork::labwork10_GPU(){
+   // Calculate number of pixels
+        int pixelCount = inputImage->width * inputImage->height;
+
+        outputImage = static_cast<char *>(malloc(pixelCount * 3));
+
+    // Allocate CUDA memory
+        uchar3 *devInput;
+        uchar3 *devOutput;
+        cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
+        cudaMalloc(&devOutput,pixelCount * sizeof(uchar3));
+        uchar3 *devGray;
+        cudaMalloc(&devGray, pixelCount * sizeof(uchar3));
+        double *outh;
+        double *outs;
+        double *outv;
+
+        cudaMalloc(&outh, pixelCount * sizeof(double));
+        cudaMalloc(&outs, pixelCount * sizeof(double));
+        cudaMalloc(&outv, pixelCount * sizeof(double));
+    // Copy CUDA Memory from CPU to GPU
+        cudaMemcpy(devInput, inputImage->buffer,pixelCount * sizeof(uchar3),cudaMemcpyHostToDevice);
+
+    // Processing
+        dim3 blockSize = dim3(32, 32);
+        int width =inputImage->width / blockSize.x;
+        int height=inputImage->height / blockSize.y;
+
+        if ((inputImage->width % blockSize.x)>0)
+        {
+                width++;
+        }
+        if ((inputImage->height % blockSize.y)>0)
+        {
+                height++;
+        }
+        dim3 gridSize = dim3(width, height);
+        RGBtoHSV<<<gridSize, blockSize>>>(devInput,outh, outs, outv,inputImage->width, inputImage->height);
+        kumahara<<<gridSize, blockSize>>>(20,outh, outs, outv,devInput, devOutput ,inputImage->width, inputImage->height);
+    // Copy CUDA Memory from GPU to CPU
+
+
+        cudaMemcpy(outputImage, devOutput,pixelCount * sizeof(uchar3),cudaMemcpyDeviceToHost);
+
+    // Cleaning
+        cudaFree(devInput);
+        cudaFree(devOutput);
+        cudaFree(devGray);
+
 }
 
 
